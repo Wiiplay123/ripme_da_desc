@@ -341,7 +341,7 @@ public class DeviantartRipper extends AbstractHTMLRipper {
                         + ".htm";
                 if (Utils.getConfigBoolean("file.overwrite", false) || !(new File(saveAs).exists())) {
                     logger.info("Got journal from " + url);
-                    saveText(new URL(url), "","<!DOCTYPE html><html><head><meta http-equiv=\"content-type\" content=\"text/html;charset=ISO-8859-1\" /><meta charset=\"ISO-8859-1\" /><title>" + (htmtitle != null ? htmtitle : title) + "</title></head><body>" + html + "</body></html>" , 0, title, ".htm");
+                    saveText(new URL(url), "","<!DOCTYPE html><html><head><meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\" /><meta charset=\"utf-8\" /><title>" + (htmtitle != null ? htmtitle : title) + "</title></head><body>" + html + "</body></html>" , 0, title, ".htm");
                     RipStatusMessage msg = new RipStatusMessage(RipStatusMessage.STATUS.DOWNLOAD_COMPLETE, Utils.removeCWD(saveAs));
                     observer.update(this, msg);
                 } else {
