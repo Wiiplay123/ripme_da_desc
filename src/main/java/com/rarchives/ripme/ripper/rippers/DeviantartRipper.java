@@ -1,5 +1,6 @@
 package com.rarchives.ripme.ripper.rippers;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -14,6 +15,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.rarchives.ripme.ui.RipStatusMessage;
 import org.jsoup.Connection.Method;
 import org.jsoup.Connection.Response;
 import org.jsoup.Jsoup;
@@ -298,24 +300,54 @@ public class DeviantartRipper extends AbstractHTMLRipper {
             // Try to find the description
             Document documentz = resp.parse();
             Element ele = documentz.select("div.dev-description").first();
-            if (ele == null) {
-                throw new IOException("No description found");
-            }
-            documentz.outputSettings(new Document.OutputSettings().prettyPrint(false));
-            ele.select("br").append("\\n");
-            ele.select("p").prepend("\\n\\n");
+            Element ele2 = documentz.select(".journal-wrapper2 div.text").first();
             String fullSize = null;
-            Element thumb = page.select("div.zones-container span.thumb[href=\"" + url + "\"]").get(0);
-            if (!thumb.attr("data-super-full-img").isEmpty()) {
-                fullSize = thumb.attr("data-super-full-img");
-                String[] split = fullSize.split("/");
-                fullSize = split[split.length - 1];
-            } else {
-                String spanUrl = thumb.attr("href");
-                fullSize = jsonToImage(page,spanUrl.substring(spanUrl.lastIndexOf('-') + 1));
-                if (fullSize != null) {
+            if (ele == null && ele2 == null) {
+                throw new IOException("No text content found");
+            }
+            if (ele != null) {
+                documentz.outputSettings(new Document.OutputSettings().prettyPrint(false));
+                ele.select("br").append("\\n");
+                ele.select("p").prepend("\\n\\n");
+                Element thumb = page.select("div.zones-container span.thumb[href=\"" + url + "\"]").get(0);
+                if (!thumb.attr("data-super-full-img").isEmpty()) {
+                    fullSize = thumb.attr("data-super-full-img");
                     String[] split = fullSize.split("/");
                     fullSize = split[split.length - 1];
+                } else {
+                    String spanUrl = thumb.attr("href");
+                    fullSize = jsonToImage(page, spanUrl.substring(spanUrl.lastIndexOf('-') + 1));
+                    if (fullSize != null) {
+                        String[] split = fullSize.split("/");
+                        fullSize = split[split.length - 1];
+                    }
+                }
+            }
+            if (ele2 != null) {
+                String title = fileNameFromURL(new URL(url));
+                String htmtitle = null;
+                Element ele3 = documentz.select("a.title").first();
+                if (ele3 != null) {
+                    htmtitle = ele3.text();
+                }
+                Element ele4 = documentz.select("div.metadata").first();
+
+                String html = ele2.outerHtml();
+                html = (ele4 != null ? ele4.outerHtml() : "") + html;
+                String saveAs = workingDir.getCanonicalPath()
+                        + ""
+                        + File.separator
+                        + title
+                        + ".htm";
+                if (Utils.getConfigBoolean("file.overwrite", false) || !(new File(saveAs).exists())) {
+                    logger.info("Got journal from " + url);
+                    saveText(new URL(url), "","<!DOCTYPE html><html><head><meta http-equiv=\"content-type\" content=\"text/html;charset=ISO-8859-1\" /><meta charset=\"ISO-8859-1\" /><title>" + (htmtitle != null ? htmtitle : title) + "</title></head><body>" + html + "</body></html>" , 0, title, ".htm");
+                    RipStatusMessage msg = new RipStatusMessage(RipStatusMessage.STATUS.DOWNLOAD_COMPLETE, Utils.removeCWD(saveAs));
+                    observer.update(this, msg);
+                } else {
+                    logger.debug("Journal from " + url.toString() + " already exists.");
+                    RipStatusMessage msg = new RipStatusMessage(RipStatusMessage.STATUS.DOWNLOAD_WARN, Utils.removeCWD(saveAs));
+                    observer.update(this, new RipStatusMessage(RipStatusMessage.STATUS.DOWNLOAD_WARN, url + " already saved as " + saveAs));
                 }
             }
             if (fullSize == null) {
