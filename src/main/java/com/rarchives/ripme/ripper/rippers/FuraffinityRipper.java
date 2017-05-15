@@ -68,7 +68,7 @@ public class FuraffinityRipper extends AbstractHTMLRipper {
 
         return Http.url(url).cookies(cookies).get();
     }
-    
+
     private void login() throws IOException {
         String newcookies = JOptionPane.showInputDialog("Gib da cookies pls b0ss");
         String[] cookiez = newcookies.split("; ");
@@ -129,7 +129,7 @@ public class FuraffinityRipper extends AbstractHTMLRipper {
     @Override
     public List<String> getURLsFromPage(Document page) {
         List<String> urls = new ArrayList<String>();
-        Elements urlElements = page.select("figure[id^=sid-]");
+        Elements urlElements = page.select("figure.t-image > b > u > a");
         for (Element e : urlElements) {
             urls.add(urlBase + e.select("a").first().attr("href"));
         }
@@ -138,7 +138,7 @@ public class FuraffinityRipper extends AbstractHTMLRipper {
     @Override
     public List<String> getDescriptionsFromPage(Document doc) {
         List<String> urls = new ArrayList<String>();
-        Elements urlElements = doc.select("figure[id^=sid-]");
+        Elements urlElements = doc.select("figure.t-image > b > u > a");
         for (Element e : urlElements) {
             urls.add(urlBase + e.select("a").first().attr("href"));
         }
@@ -227,7 +227,7 @@ public class FuraffinityRipper extends AbstractHTMLRipper {
                 if (donwloadLink.size() == 0) {
                     logger.warn("Could not download " + this.url);
                     return;
-            	}
+                }
                 String link = "http:" + donwloadLink.first().attr("href");
                 logger.info("Found URL " + link);
                 addURLToDownload(new URL(link),"","",url.toExternalForm(),cookies);
@@ -238,7 +238,7 @@ public class FuraffinityRipper extends AbstractHTMLRipper {
                 }
             } catch (IOException e) {
                 logger.error("[!] Exception while loading/parsing " + this.url, e);
-        	}
+            }
         }
     }
 

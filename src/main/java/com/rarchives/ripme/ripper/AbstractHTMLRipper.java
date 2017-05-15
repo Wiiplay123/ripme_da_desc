@@ -16,7 +16,7 @@ import com.rarchives.ripme.utils.Utils;
  * Simplified ripper, designed for ripping from sites by parsing HTML.
  */
 public abstract class AbstractHTMLRipper extends AlbumRipper {
-	
+
     public AbstractHTMLRipper(URL url) throws IOException {
         super(url);
     }
@@ -30,7 +30,7 @@ public abstract class AbstractHTMLRipper extends AlbumRipper {
     }
     public abstract List<String> getURLsFromPage(Document page);
     public List<String> getDescriptionsFromPage(Document doc) throws IOException {
-    	throw new IOException("getDescriptionsFromPage not implemented"); // Do I do this or make an abstract function?
+        throw new IOException("getDescriptionsFromPage not implemented"); // Do I do this or make an abstract function?
     }
     public abstract void downloadURL(URL url, int index);
     public DownloadThreadPool getThreadPool() {
@@ -45,13 +45,13 @@ public abstract class AbstractHTMLRipper extends AlbumRipper {
     public boolean canRip(URL url) {
         return url.getHost().endsWith(getDomain());
     }
-    
+
     @Override
     public URL sanitizeURL(URL url) throws MalformedURLException {
         return url;
     }
     public boolean hasDescriptionSupport() {
-		return false;
+        return false;
     }
     public String[] getDescription(String url,Document page) throws IOException {
     	throw new IOException("getDescription not implemented"); // Do I do this or make an abstract function?
@@ -66,7 +66,7 @@ public abstract class AbstractHTMLRipper extends AlbumRipper {
         logger.info("Retrieving " + this.url);
         sendUpdate(STATUS.LOADING_RESOURCE, this.url.toExternalForm());
         Document doc = getFirstPage();
-        
+
         while (doc != null) {
             List<String> imageURLs = getURLsFromPage(doc);
             // Remove all but 1 image
@@ -79,7 +79,7 @@ public abstract class AbstractHTMLRipper extends AlbumRipper {
             if (imageURLs.size() == 0) {
                 throw new IOException("No images found at " + doc.location());
             }
-            
+
             for (String imageURL : imageURLs) {
                 index += 1;
                 logger.debug("Found image url #" + index + ": " + imageURL);
@@ -90,8 +90,8 @@ public abstract class AbstractHTMLRipper extends AlbumRipper {
             }
             if (hasDescriptionSupport() && Utils.getConfigBoolean("descriptions.save", false)) {
                 logger.debug("Fetching description(s) from " + doc.location());
-            	List<String> textURLs = getDescriptionsFromPage(doc);
-            	if (textURLs.size() > 0) {
+                List<String> textURLs = getDescriptionsFromPage(doc);
+                if (textURLs.size() > 0) {
                     logger.debug("Found description link(s) from " + doc.location());
             		for (String textURL : textURLs) {
             			if (isStopped()) {
