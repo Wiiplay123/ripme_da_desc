@@ -155,7 +155,9 @@ public abstract class AbstractHTMLRipper extends AlbumRipper {
         return saveText(url,subdirectory,text,index,saveAs);
     }
     public boolean saveText(URL url, String subdirectory, String text, int index, String fileName) {
-        // Not the best for some cases, like FurAffinity. Overridden there.
+        return saveText(url,subdirectory,text,index,fileName,".txt");
+    }
+    public boolean saveText(URL url, String subdirectory, String text, int index, String fileName, String fileExtension) {
         try {
             stopCheck();
         } catch (IOException e) {
@@ -173,7 +175,7 @@ public abstract class AbstractHTMLRipper extends AlbumRipper {
                     + File.separator
                     + getPrefix(index)
                     + fileName
-                    + ".txt");
+                    + fileExtension);
             // Write the file
             FileOutputStream out = (new FileOutputStream(saveFileAs));
             out.write(text.getBytes());
