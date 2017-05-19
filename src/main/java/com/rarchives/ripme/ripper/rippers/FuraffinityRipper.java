@@ -205,6 +205,12 @@ public class FuraffinityRipper extends AbstractHTMLRipper {
         if (m.matches()) {
             return m.group(1);
         }
+        p = Pattern
+                .compile("^https?://www\\.furaffinity\\.net/scraps/([-_.0-9a-zA-Z]+).*$");
+        m = p.matcher(url.toExternalForm());
+        if (m.matches()) {
+            return m.group(1);
+        }
         throw new MalformedURLException("Expected furaffinity.net URL format: "
                 + "www.furaffinity.net/gallery/username  - got " + url
                 + " instead");
