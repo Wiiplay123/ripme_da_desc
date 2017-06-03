@@ -77,15 +77,16 @@ public abstract class AbstractHTMLRipper extends AlbumRipper {
             }
 
             if (imageURLs.size() == 0) {
-                throw new IOException("No images found at " + doc.location());
-            }
+                //throw new IOException("No images found at " + doc.location());
+            } else {
 
-            for (String imageURL : imageURLs) {
-                index += 1;
-                logger.debug("Found image url #" + index + ": " + imageURL);
-                downloadURL(new URL(imageURL), index);
-                if (isStopped()) {
-                    break;
+                for (String imageURL : imageURLs) {
+                    index += 1;
+                    logger.debug("Found image url #" + index + ": " + imageURL);
+                    downloadURL(new URL(imageURL), index);
+                    if (isStopped()) {
+                        break;
+                    }
                 }
             }
             if (hasDescriptionSupport() && Utils.getConfigBoolean("descriptions.save", false)) {

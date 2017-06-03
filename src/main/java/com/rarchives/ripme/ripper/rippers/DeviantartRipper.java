@@ -179,14 +179,14 @@ public class DeviantartRipper extends AbstractHTMLRipper {
                 } else {
                     continue;
                 }
+            } else {
+                if (triedURLs.contains(fullSize)) {
+                    logger.warn("Already tried to download " + fullSize);
+                    continue;
+                }
+                triedURLs.add(fullSize);
+                imageURLs.add(fullSize);
             }
-            if (triedURLs.contains(fullSize)) {
-                logger.warn("Already tried to download " + fullSize);
-                continue;
-            }
-            triedURLs.add(fullSize);
-            imageURLs.add(fullSize);
-
             if (isThisATest()) {
                 // Only need one image for a test
                 break;
