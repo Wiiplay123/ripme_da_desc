@@ -49,7 +49,7 @@ public class InstagramRipper extends AbstractJSONRipper {
 
     @Override
     public URL sanitizeURL(URL url) throws MalformedURLException {
-        Pattern p = Pattern.compile("^.*instagram\\.com/([a-zA-Z0-9\\-_.]{3,}).*$");
+        Pattern p = Pattern.compile("^.*instagram\\.com/([a-zA-Z0-9\\-_.]+).*$");
         Matcher m = p.matcher(url.toExternalForm());
         if (m.matches()) {
             return new URL("http://instagram.com/" + m.group(1));
@@ -113,15 +113,15 @@ public class InstagramRipper extends AbstractJSONRipper {
         imageURL = imageURL.replaceAll("scontent.cdninstagram.com/hphotos-", "igcdn-photos-d-a.akamaihd.net/hphotos-ak-");
         imageURL = imageURL.replaceAll("s640x640/", "");
 
-        // it appears ig now allows higher resolution images to be uploaded but are artifically cropping the images to
-        // 1080x1080 to preserve legacy support. the cropping string below isnt present on ig website and removing it
-        // displays the uncropped image.
-        imageURL = imageURL.replaceAll("c0.114.1080.1080/", "");
+        // Instagram returns cropped images to unauthenticated applications to maintain legacy support. 
+        // To retrieve the uncropped image, remove this segment from the URL. 
+        // Segment format: cX.Y.W.H - eg: c0.134.1080.1080
+        imageURL = imageURL.replaceAll("\\/c\\d{1,4}\\.\\d{1,4}\\.\\d{1,4}\\.\\d{1,4}", "");
 
         imageURL = imageURL.replaceAll("\\?ig_cache_key.+$", "");
         return imageURL;
     }
-    
+
     private String getMedia(JSONObject data) {
         String imageURL = "";
         if (data.has("videos")) {
@@ -131,14 +131,14 @@ public class InstagramRipper extends AbstractJSONRipper {
         }
         return imageURL;
     }
-	
+
     @Override
     public List<String> getURLsFromJSON(JSONObject json) {
         List<String> imageURLs = new ArrayList<String>();
         JSONArray datas = json.getJSONArray("items");
         for (int i = 0; i < datas.length(); i++) {
             JSONObject data = (JSONObject) datas.get(i);
-			
+
             String dataType = data.getString("type");
             if (dataType.equals("carousel")) {
                 JSONArray carouselMedias = data.getJSONArray("carousel_media");

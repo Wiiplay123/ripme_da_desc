@@ -70,12 +70,16 @@ public class FuraffinityRipper extends AbstractHTMLRipper {
     }
 
     private void login() throws IOException {
-        String newcookies = JOptionPane.showInputDialog("Gib da cookies pls b0ss");
-        String[] cookiez = newcookies.split("; ");
+        String newcookies = Utils.getConfigString("furaffinity.cookies", "");
         cookies = new HashMap<String, String>();
-        for (String pairone: cookiez) {
-            String[] pairtwo = pairone.split("=");
-            cookies.put(pairtwo[0],pairtwo[1]);
+        if (!newcookies.isEmpty()) {
+            String[] cookiez = newcookies.split("; ");
+            for (String pairone : cookiez) {
+                String[] pairtwo = pairone.split("=");
+                cookies.put(pairtwo[0], pairtwo[1]);
+            }
+        } else {
+            System.out.println("Login failed.");
         }
         /*
         String user = new String(Base64.decode("cmlwbWU="));
@@ -129,7 +133,7 @@ public class FuraffinityRipper extends AbstractHTMLRipper {
     @Override
     public List<String> getURLsFromPage(Document page) {
         List<String> urls = new ArrayList<String>();
-        Elements urlElements = page.select("figure.t-image > b > u > a");
+        Elements urlElements = page.select("figure > b > u > a");
         for (Element e : urlElements) {
             urls.add(urlBase + e.select("a").first().attr("href"));
         }
@@ -138,7 +142,7 @@ public class FuraffinityRipper extends AbstractHTMLRipper {
     @Override
     public List<String> getDescriptionsFromPage(Document doc) {
         List<String> urls = new ArrayList<String>();
-        Elements urlElements = doc.select("figure.t-image > b > u > a");
+        Elements urlElements = doc.select("figure > b > u > a");
         for (Element e : urlElements) {
             urls.add(urlBase + e.select("a").first().attr("href"));
         }

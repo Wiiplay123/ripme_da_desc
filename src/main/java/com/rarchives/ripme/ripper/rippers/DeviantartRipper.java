@@ -31,7 +31,7 @@ import com.rarchives.ripme.utils.Utils;
 
 public class DeviantartRipper extends AbstractHTMLRipper {
 
-    private static final int PAGE_SLEEP_TIME  = 3000,
+    private static final int PAGE_SLEEP_TIME  = 100,
                              IMAGE_SLEEP_TIME = 2000;
 
     private Map<String,String> cookies = new HashMap<String,String>();
@@ -153,7 +153,8 @@ public class DeviantartRipper extends AbstractHTMLRipper {
             if (isStopped()) {
                 break;
             }
-            Element img = thumb.select("img").get(0);
+            Element img = thumb.select("a > img").get(0);
+            System.out.println(img);
             if (img.attr("transparent").equals("false")) {
                 continue; // a.thumbs to other albums are invisible
             }
@@ -163,8 +164,10 @@ public class DeviantartRipper extends AbstractHTMLRipper {
                 fullSize = thumb.attr("data-super-full-img");
             } else {
                 String spanUrl = thumb.attr("href");
+
                 String fullSize1 = jsonToImage(page,spanUrl.substring(spanUrl.lastIndexOf('-') + 1));
                 if (fullSize1 == null || !fullSize1.contains("//orig")) {
+                    System.out.println("Heading to " + spanUrl);
                     fullSize = smallToFull(img.attr("src"), spanUrl);
                 }
                 if (fullSize == null && fullSize1 != null) {
@@ -260,7 +263,8 @@ public class DeviantartRipper extends AbstractHTMLRipper {
      * @throws Exception If it can't find the full-size URL
      */
     public static String thumbToFull(String thumb, boolean throwException) throws Exception {
-        thumb = thumb.replace("http://th", "http://fc");
+        thumb = "http://" + thumb.substring(thumb.indexOf("origin()/") + 9).replaceFirst("/",".deviantart.net/");
+        //thumb = thumb.replace("http://th", "http://fc");
         List<String> fields = new ArrayList<String>(Arrays.asList(thumb.split("/")));
         fields.remove(4);
         if (!fields.get(4).equals("f") && throwException) {
@@ -332,7 +336,6 @@ public class DeviantartRipper extends AbstractHTMLRipper {
                     htmtitle = ele3.text();
                 }
                 Element ele4 = documentz.select("div.metadata").first();
-
                 String html = ele2.outerHtml();
                 html = (ele4 != null ? ele4.outerHtml() : "") + html;
                 String saveAs = workingDir.getCanonicalPath()
@@ -373,14 +376,24 @@ public class DeviantartRipper extends AbstractHTMLRipper {
      */
     public String smallToFull(String thumb, String page) {
         try {
+            Response resp;
             // Fetch the image page
-            Response resp = Http.url(page)
-                                .referrer(this.url)
-                                .cookies(cookies)
-                                .response();
-            cookies.putAll(resp.cookies());
+            try {
+                resp = Http.url(page)
+                        .referrer(this.url)
+                        .cookies(cookies)
+                        .response();
+                cookies.putAll(resp.cookies());
+            } catch (Exception E) {
+                resp = Http.url(page)
+                        .referrer(this.url)
+                        .cookies(cookies)
+                        .response();
+                cookies.putAll(resp.cookies());
+            }
             Document doc = resp.parse();
             Elements els = doc.select("img.dev-content-full");
+            //System.out.println(els.size());
             String fsimage = null;
             // Get the largest resolution image on the page
             if (els.size() > 0) {
@@ -398,6 +411,7 @@ public class DeviantartRipper extends AbstractHTMLRipper {
                 String downloadLink = els.get(0).attr("href");
                 logger.info("Found download button link: " + downloadLink);
                 HttpURLConnection con = (HttpURLConnection) new URL(downloadLink).openConnection();
+                con.setRequestMethod("HEAD");
                 con.setRequestProperty("Referer",this.url.toString());
                 String cookieString = "";
                 for (Map.Entry<String, String> entry : cookies.entrySet()) {
@@ -413,7 +427,7 @@ public class DeviantartRipper extends AbstractHTMLRipper {
                 con.disconnect();
                 if (location.contains("//orig")) {
                     fsimage = location;
-                    logger.info("Found image download: " + location);
+                    logger.info("Found image download from button: " + location);
                 }
             }
             if (fsimage != null) {

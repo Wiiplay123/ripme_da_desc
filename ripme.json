@@ -1,6 +1,14 @@
 {
-  "latestVersion" : "1.4.16",
+  "latestVersion" : "1.5.2",
   "changeList" : [
+    "1.5.2: Fix Imgur titles; fix xhamster (new URL format); fixed Instagram ripping cropped pictures",
+    "1.5.1: Ensure update mechanism is working correctly.",
+    "1.5.0: Change 'home' repo from 4pr0n/RipMe to RipMeApp/RipMe",
+    "1.4.21: Added Chevereto ripper (hushpix.com, tag-fox.com)",
+    "1.4.20: EroshareRipper can now rip user profiles",
+    "1.4.19: WordpressComicRipper supports more rippers; improvements to Instagram and code quality",
+    "1.4.18: Fix video rippers (broken in 1.4.14)",
+    "1.4.17: MyHentaiComics improvements",
     "1.4.16: Fix Eightmuses; Add Instagram album support",
     "1.4.15: Fixed DeviantArt Ripper",
     "1.4.14: Improvements to ChanRipper (rip external links), MyHentaiComics, and Twitter (video and albums)",
