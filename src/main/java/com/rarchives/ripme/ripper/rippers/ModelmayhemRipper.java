@@ -106,7 +106,7 @@ public class ModelmayhemRipper extends AlbumRipper {
                 continue;
             }
             String prefix = "";
-            if (Utils.getConfigBoolean("download.save_order", true)) {
+            if (Utils.getConfigBoolean("download.save_order", false)) {
                 prefix = String.format("%03d_", i + 1);
             }
             addURLToDownload(new URL(bigImage), prefix);

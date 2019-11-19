@@ -98,7 +98,7 @@ public abstract class AbstractJSONRipper extends AlbumRipper {
 
     public String getPrefix(int index) {
         String prefix = "";
-        if (keepSortOrder() && Utils.getConfigBoolean("download.save_order", true)) {
+        if (keepSortOrder() && Utils.getConfigBoolean("download.save_order", false)) {
             prefix = String.format("%03d_", index);
         }
         return prefix;

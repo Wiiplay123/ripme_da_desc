@@ -66,7 +66,7 @@ public class XbooruRipper extends AbstractHTMLRipper {
 
     @Override
     public void downloadURL(URL url, int index) {
-        addURLToDownload(url, Utils.getConfigBoolean("download.save_order", true) ? url.getRef() + "-" : "");
+        addURLToDownload(url, Utils.getConfigBoolean("download.save_order", false) ? url.getRef() + "-" : "");
     }
 
     private String getTerm(URL url) throws MalformedURLException {

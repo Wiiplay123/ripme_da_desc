@@ -110,7 +110,7 @@ public class ImagevenueRipper extends AbstractHTMLRipper {
                 imgsrc = "http://" + this.url.getHost() + "/" + imgsrc;
                 // Provide prefix and let the AbstractRipper "guess" the filename
                 String prefix = "";
-                if (Utils.getConfigBoolean("download.save_order", true)) {
+                if (Utils.getConfigBoolean("download.save_order", false)) {
                     prefix = String.format("%03d_", index);
                 }
                 addURLToDownload(new URL(imgsrc), prefix);

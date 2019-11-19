@@ -99,9 +99,9 @@ public class E621Ripper extends AbstractHTMLRipper {
                     Element e = page.getElementById("image");
 
                     if (e != null) {
-                        addURLToDownload(new URL(e.absUrl("src")), Utils.getConfigBoolean("download.save_order", true) ? url.getRef() + "-" : "");
+                        addURLToDownload(new URL(e.absUrl("src")), Utils.getConfigBoolean("download.save_order", false) ? url.getRef() + "-" : "");
                     } else if ((e = page.select(".content object>param[name=\"movie\"]").first()) != null) {
-                        addURLToDownload(new URL(e.absUrl("value")), Utils.getConfigBoolean("download.save_order", true) ? url.getRef() + "-" : "");
+                        addURLToDownload(new URL(e.absUrl("value")), Utils.getConfigBoolean("download.save_order", false) ? url.getRef() + "-" : "");
                     } else {
                         Logger.getLogger(E621Ripper.class.getName()).log(Level.WARNING, "Unsupported media type - please report to program author: " + url.toString());
                     }

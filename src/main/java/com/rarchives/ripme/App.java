@@ -128,7 +128,7 @@ public class App {
             }
         }
         if (cl.hasOption('d')) {
-            Utils.setConfigBoolean("download.save_order", true);
+            Utils.setConfigBoolean("download.save_order", false);
         }
         if (cl.hasOption('D')) {
             Utils.setConfigBoolean("download.save_order", false);

@@ -159,7 +159,7 @@ public class PornhubRipper extends AlbumRipper {
 
                 // Provide prefix and let the AbstractRipper "guess" the filename
                 String prefix = "";
-                if (Utils.getConfigBoolean("download.save_order", true)) {
+                if (Utils.getConfigBoolean("download.save_order", false)) {
                     prefix = String.format("%03d_", index);
                 }
 

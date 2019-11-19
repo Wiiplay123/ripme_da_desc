@@ -28,7 +28,7 @@ public abstract class AbstractRipper
     protected static final Logger logger = Logger.getLogger(AbstractRipper.class);
 
     public static final String USER_AGENT =
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:36.0) Gecko/20100101 Firefox/36.0";
+            Utils.getConfigString("ua","Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:55.0) Gecko/20100101 Firefox/55.0");
 
     protected URL url;
     protected File workingDir;
@@ -55,7 +55,14 @@ public abstract class AbstractRipper
             throw new IOException("Ripping interrupted");
         }
     }
-
+    public boolean containsMulti(String haystack, String... needles) {
+        for (String needle : needles) {
+            if (haystack.contains(needle)) {
+                return true;
+            }
+        }
+        return false;
+    }
     /**
      * Ensures inheriting ripper can rip this URL, raises exception if not.
      * Otherwise initializes working directory and thread pool.
@@ -113,6 +120,9 @@ public abstract class AbstractRipper
     public abstract boolean addURLToDownload(URL url, File saveAs, String referrer, Map<String,String> cookies);
 
     public boolean addURLToDownload(URL url, String prefix, String subdirectory, String referrer, Map<String,String> cookies) {
+        return addURLToDownload(url, prefix, subdirectory, referrer, cookies, "");
+    }
+    public boolean addURLToDownload(URL url, String prefix, String subdirectory, String referrer, Map<String,String> cookies, String nameOverride) {
         try {
             stopCheck();
         } catch (IOException e) {
@@ -120,7 +130,7 @@ public abstract class AbstractRipper
             return false;
         }
         logger.debug("url: " + url + ", prefix: " + prefix + ", subdirectory" + subdirectory + ", referrer: " + referrer + ", cookies: " + cookies);
-        String saveAs = url.toExternalForm();
+        String saveAs = (nameOverride.isEmpty() ? url.toExternalForm() : nameOverride);
         saveAs = saveAs.substring(saveAs.lastIndexOf('/')+1);
         if (saveAs.indexOf('?') >= 0) { saveAs = saveAs.substring(0, saveAs.indexOf('?')); }
         if (saveAs.indexOf('#') >= 0) { saveAs = saveAs.substring(0, saveAs.indexOf('#')); }

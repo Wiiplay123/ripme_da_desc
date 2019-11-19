@@ -148,10 +148,14 @@ public class FuraffinityRipper extends AbstractHTMLRipper {
         }
         return urls;
     }
+    public boolean saveText(URL url, String subdirectory, String text, int index, String fileName) {
+        return saveText(url,subdirectory,text,index,fileName,"");
+    }
     @Override
     public int descSleepTime() {
         return 400;
     }
+    public String CSSString = "body{padding:0;font-size:7.5pt;font-family:Verdana,sans-serif}img.avatar{max-width:100px;max-height:100px}table, tr, td, th{font-family:Verdana,sans-serif;font-size:7.5pt}a.iconusername img{max-width:50px;max-height:50px}body{background-color:#d4dce8}a.iconusername,.maintable a.iconusername:visited{color:#4b4b4b}.auto_link,.auto_link:link,.linkusername,.linkusername:link{color:#4b4b4b!important}img,a{border:0}a:link{font-weight:700;text-decoration:none}.cat{background-color:#919bad;border:2px solid #d4dce8; color:#fff}.alt1{background-color:#d4dce8;color:#2e2e2e}.maintable{background-color:#8a95a8}.alt1 a:link,.alt1 a:visited, .cat a:link,.cat a:visited{color:#2e2e2e}.alt1 a:hover, .cat a:hover{color:#790000}.alt1 a.iconusername,.alt1 a.iconusername:visited{color:#4b4b4b}div#keywords{margin:4px 2px 0 21px}div#keywords a,div#keywords a:link,div#keywords a:hover,div#keywords a:visited{font-weight:400}a:hover{text-decoration:underline}a.iconusername:hover,a.linkusername:hover, .cat a:hover{text-decoration:none}.stats-container{min-width:240px}.popup_date{border-bottom:1px dotted #8a95a8!important;cursor:help!important}";
     public String[] getDescription(String url, Document page) {
         try {
             // Fetch the image page
@@ -162,15 +166,28 @@ public class FuraffinityRipper extends AbstractHTMLRipper {
             cookies.putAll(resp.cookies());
 
             // Try to find the description
-            Element ele = resp.parse().select("td[class=alt1][width=\"70%\"]").first();
+            //Element ele = resp.parse().select("td[class=alt1][width=\"70%\"]").first();
+            Element ele = resp.parse().select("table[class=maintable][width=\"98%\"]").first();
             if (ele == null) {
                 logger.debug("No description at " + url);
                 throw new IOException("No description found");
             }
+            String saveCSS = workingDir.getCanonicalPath()
+                    + ""
+                    + File.separator
+                    + "furaffinity.css";
+            try {
+                if (!(new File(saveCSS).exists())) {
+                    saveText(new URL(url), "", CSSString , 0, "furaffinity", ".css");
+
+                }
+            } catch (Exception oof) {
+                logger.info("Couldn't save CSS file.");
+            }
             logger.debug("Description found!");
             Document documentz = resp.parse();
             documentz.outputSettings(new Document.OutputSettings().prettyPrint(false));
-            ele.select("br").append("\\n");
+            /*ele.select("br").append("\\n");
             Elements paragraphs = ele.select("p");
             if (!paragraphs.isEmpty()) {
                 if (paragraphs.size() > 0) {
@@ -179,11 +196,12 @@ public class FuraffinityRipper extends AbstractHTMLRipper {
                 if (paragraphs.size() > 0) {
                     paragraphs.prepend("\\n\\n");
                 }
-            }
-            String tempPage = Jsoup.clean(ele.html().replaceAll("\\\\n", System.getProperty("line.separator")), "", Whitelist.none(), new Document.OutputSettings().prettyPrint(false).escapeMode(Entities.EscapeMode.xhtml));
+            }*/
+            //String tempPage = Jsoup.clean(ele.html().replaceAll("\\\\n", System.getProperty("line.separator")), "", Whitelist.none(), new Document.OutputSettings().prettyPrint(false).escapeMode(Entities.EscapeMode.xhtml));
+            String tempPage = "<!DOCTYPE html><link rel=\"stylesheet\" type=\"text/css\" href=\"furaffinity.css\" />" + ele.outerHtml().replace("src=\"//a.facdn.net/","src=\"https://a.facdn.net/").replace("src=\"/theme","src=\"https://www.furaffinity.net/theme");
             Element link = documentz.select("div.alt1 b a[href^=//d.facdn.net/]").first();
             if (link != null) {
-                return new String[] {tempPage,fileNameFromURL(new URL("http:" + link.attr("href").substring(0, link.attr("href").lastIndexOf("."))))};
+                return new String[] {tempPage,fileNameFromURL(new URL("http:" + link.attr("href").substring(0, link.attr("href").lastIndexOf(".")))) + ".htm"};
             }
             Element title = documentz.select("table.maintable[cellpadding=\"2\"] tbody tr td.cat b").first();
             if (title == null) {

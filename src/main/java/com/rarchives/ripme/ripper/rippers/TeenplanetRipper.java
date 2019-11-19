@@ -84,7 +84,7 @@ public class TeenplanetRipper extends AlbumRipper {
                     "/");
             index += 1;
             String prefix = "";
-            if (Utils.getConfigBoolean("download.save_order", true)) {
+            if (Utils.getConfigBoolean("download.save_order", false)) {
                 prefix = String.format("%03d_", index);
             }
             addURLToDownload(new URL(image), prefix);

@@ -130,7 +130,7 @@ public final class MainWindow implements Runnable, RipStatusHandler {
     private static JTextField configThreadsText;
     private static JCheckBox configOverwriteCheckbox;
     private static JLabel configSaveDirLabel;
-    private static JButton configSaveDirButton;
+    private static JButton configSaveDirButton, configSaveConfigButton, configViewDirButton;
     private static JTextField configRetriesText;
     private static JCheckBox configAutoupdateCheckbox;
     private static JComboBox configLogLevelCombobox;
@@ -144,6 +144,14 @@ public final class MainWindow implements Runnable, RipStatusHandler {
     private static JCheckBox configSaveDescriptions;
     private static JCheckBox configPreferMp4;
     private static JCheckBox configWindowPosition;
+    private static JCheckBox configAdv;
+    private static JCheckBox configL;
+    private static JCheckBox configWix;
+
+    // DeviantArt Cookie Updater
+    private static JTextField dvText;
+    private static JLabel dvLabel;
+    private static JCheckBox dvCheck;
 
     private static TrayIcon trayIcon;
     private static MenuItem trayMenuMain;
@@ -156,7 +164,7 @@ public final class MainWindow implements Runnable, RipStatusHandler {
     private static AbstractRipper ripper;
 
     public MainWindow() {
-        mainFrame = new JFrame("RipMe v" + UpdateUtils.getThisJarVersion());
+        mainFrame = new JFrame("RipMe v" + UpdateUtils.getThisJarVersion() + " Custom Edition");
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.setResizable(false);
         mainFrame.setLayout(new GridBagLayout());
@@ -173,7 +181,7 @@ public final class MainWindow implements Runnable, RipStatusHandler {
         };
         Runtime.getRuntime().addShutdownHook(shutdownThread);
 
-        if (Utils.getConfigBoolean("auto.update", true)) {
+        if (Utils.getConfigBoolean("auto.update", false)) {
             upgradeProgram();
         }
 
@@ -218,6 +226,10 @@ public final class MainWindow implements Runnable, RipStatusHandler {
         Utils.setConfigBoolean("clipboard.autorip", configClipboardAutorip.isSelected());
         Utils.setConfigBoolean("descriptions.save", configSaveDescriptions.isSelected());
         Utils.setConfigBoolean("prefer.mp4", configPreferMp4.isSelected());
+        Utils.setConfigBoolean("advskip", configAdv.isSelected());
+        Utils.setConfigBoolean("litskip", configL.isSelected());
+        Utils.setConfigBoolean("wixskip", configWix.isSelected());
+        Utils.setConfigBoolean("deviantart.usecookies", dvCheck.isSelected());
         saveWindowPosition(mainFrame);
         saveHistory();
         Utils.saveConfig();
@@ -231,7 +243,7 @@ public final class MainWindow implements Runnable, RipStatusHandler {
         statusWithColor(text, Color.RED);
     }
 
-    private void statusWithColor(String text, Color color) {
+    public void statusWithColor(String text, Color color) {
         statusLabel.setForeground(color);
         statusLabel.setText(text);
         pack();
@@ -436,7 +448,7 @@ public final class MainWindow implements Runnable, RipStatusHandler {
         configurationPanel = new JPanel(new GridBagLayout());
         configurationPanel.setBorder(emptyBorder);
         configurationPanel.setVisible(false);
-        configurationPanel.setPreferredSize(new Dimension(300, 250));
+        configurationPanel.setPreferredSize(new Dimension(300, 275));
         // TODO Configuration components
         configUpdateButton = new JButton("Check for updates");
         configUpdateLabel = new JLabel("Current version: " + UpdateUtils.getThisJarVersion(), JLabel.RIGHT);
@@ -449,7 +461,7 @@ public final class MainWindow implements Runnable, RipStatusHandler {
         configOverwriteCheckbox = new JCheckBox("Overwrite existing files?", Utils.getConfigBoolean("file.overwrite", false));
         configOverwriteCheckbox.setHorizontalAlignment(JCheckBox.RIGHT);
         configOverwriteCheckbox.setHorizontalTextPosition(JCheckBox.LEFT);
-        configAutoupdateCheckbox = new JCheckBox("Auto-update?", Utils.getConfigBoolean("auto.update", true));
+        configAutoupdateCheckbox = new JCheckBox("Auto-update?", Utils.getConfigBoolean("auto.update", false));
         configAutoupdateCheckbox.setHorizontalAlignment(JCheckBox.RIGHT);
         configAutoupdateCheckbox.setHorizontalTextPosition(JCheckBox.LEFT);
         configLogLevelCombobox = new JComboBox(new String[] {"Log level: Error", "Log level: Warn", "Log level: Info", "Log level: Debug"});
@@ -458,7 +470,7 @@ public final class MainWindow implements Runnable, RipStatusHandler {
         configPlaySound = new JCheckBox("Sound when rip completes", Utils.getConfigBoolean("play.sound", false));
         configPlaySound.setHorizontalAlignment(JCheckBox.RIGHT);
         configPlaySound.setHorizontalTextPosition(JCheckBox.LEFT);
-        configSaveOrderCheckbox = new JCheckBox("Preserve order", Utils.getConfigBoolean("download.save_order", true));
+        configSaveOrderCheckbox = new JCheckBox("Preserve order", Utils.getConfigBoolean("download.save_order", false));
         configSaveOrderCheckbox.setHorizontalAlignment(JCheckBox.RIGHT);
         configSaveOrderCheckbox.setHorizontalTextPosition(JCheckBox.LEFT);
         configShowPopup = new JCheckBox("Notification when rip starts", Utils.getConfigBoolean("download.show_popup", false));
@@ -485,7 +497,20 @@ public final class MainWindow implements Runnable, RipStatusHandler {
         configWindowPosition = new JCheckBox("Restore window position", Utils.getConfigBoolean("window.position", true));
         configWindowPosition.setHorizontalAlignment(JCheckBox.RIGHT);
         configWindowPosition.setHorizontalTextPosition(JCheckBox.LEFT);
+        configAdv = new JCheckBox("Advanced Skip Logic", Utils.getConfigBoolean("advskip", false));
+        configAdv.setHorizontalAlignment(JCheckBox.RIGHT);
+        configAdv.setHorizontalTextPosition(JCheckBox.LEFT);
+        configWix = new JCheckBox("Wix Skip", Utils.getConfigBoolean("wixskip", true));
+        configWix.setHorizontalAlignment(JCheckBox.RIGHT);
+        configWix.setHorizontalTextPosition(JCheckBox.LEFT);
+        configL = new JCheckBox("Literature Incompatibility", Utils.getConfigBoolean("litskip", false));
+        configL.setHorizontalAlignment(JCheckBox.RIGHT);
+        configL.setHorizontalTextPosition(JCheckBox.LEFT);
         configSaveDirLabel = new JLabel();
+        JLabel dvLabel = new JLabel("DeviantArt Cookies:", JLabel.RIGHT);
+        dvText = new JTextField(Utils.getConfigString("deviantart.cookies", ""));
+        //JLabel dvLabel2 = new JLabel("Use Deviantart Cookies:", JLabel.RIGHT);
+        dvCheck = new JCheckBox("Use DeviantArt Cookies",Utils.getConfigBoolean("deviantart.usecookies",false));
         try {
             String workingDir = (Utils.shortenPath(Utils.getWorkingDirectory()));
             configSaveDirLabel.setText(workingDir);
@@ -495,6 +520,8 @@ public final class MainWindow implements Runnable, RipStatusHandler {
         configSaveDirLabel.setToolTipText(configSaveDirLabel.getText());
         configSaveDirLabel.setHorizontalAlignment(JLabel.RIGHT);
         configSaveDirButton = new JButton("Select Save Directory...");
+        configSaveConfigButton = new JButton("Save Config");
+        configViewDirButton = new JButton("View Rips");
         gbc.gridy = 0; gbc.gridx = 0; configurationPanel.add(configUpdateLabel, gbc);
                        gbc.gridx = 1; configurationPanel.add(configUpdateButton, gbc);
         gbc.gridy = 1; gbc.gridx = 0; configurationPanel.add(configAutoupdateCheckbox, gbc);
@@ -516,9 +543,17 @@ public final class MainWindow implements Runnable, RipStatusHandler {
         gbc.gridy = 9; gbc.gridx = 0; configurationPanel.add(configSaveDescriptions, gbc);
                        gbc.gridx = 1; configurationPanel.add(configPreferMp4, gbc);
         gbc.gridy = 10; gbc.gridx = 0; configurationPanel.add(configWindowPosition, gbc);
-        gbc.gridy = 11; gbc.gridx = 0; configurationPanel.add(configSaveDirLabel, gbc);
+                        gbc.gridx = 1; configurationPanel.add(configAdv,gbc);
+        gbc.gridy = 11; gbc.gridx = 0; configurationPanel.add(configL,gbc);
+                        gbc.gridx = 1; configurationPanel.add(configSaveConfigButton,gbc);
+        gbc.gridy = 12; gbc.gridx = 0; configurationPanel.add(configSaveDirLabel, gbc);
                         gbc.gridx = 1; configurationPanel.add(configSaveDirButton, gbc);
-
+        gbc.gridy = 13; gbc.gridx = 0; configurationPanel.add(configWix, gbc);
+                        gbc.gridx = 1; configurationPanel.add(configViewDirButton, gbc);
+        gbc.gridy = 14; gbc.gridx = 0; configurationPanel.add(dvCheck, gbc);
+                        gbc.gridx = 1; configurationPanel.add(dvText, gbc);
+        //gbc.gridy = 15;
+                        //gbc.gridx = 0; configurationPanel.add(dvCheck, gbc);
         gbc.gridy = 0; pane.add(ripPanel, gbc);
         gbc.gridy = 1; pane.add(statusPanel, gbc);
         gbc.gridy = 2; pane.add(progressPanel, gbc);
@@ -715,6 +750,13 @@ public final class MainWindow implements Runnable, RipStatusHandler {
                 } catch (Exception e1) { }
             }
         });
+        configSaveConfigButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                Utils.setConfigString("deviantart.cookies", dvText.getText());
+                shutdownCleanup();
+            }
+        });
         configSaveDirButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
@@ -737,6 +779,16 @@ public final class MainWindow implements Runnable, RipStatusHandler {
                 Utils.setConfigString("rips.directory", chosenPath);
             }
         });
+        configViewDirButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                try {
+                    Desktop.getDesktop().open(Utils.getWorkingDirectory());
+                } catch (Exception e) {
+                    logger.error(e);
+                }
+            }
+            });
         configOverwriteCheckbox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
@@ -1117,7 +1169,7 @@ public final class MainWindow implements Runnable, RipStatusHandler {
         }
         if (!failed) {
             try {
-                mainFrame.setTitle("Ripping - RipMe v" + UpdateUtils.getThisJarVersion());
+                mainFrame.setTitle("Ripping - RipMe v" + UpdateUtils.getThisJarVersion() + " Custom Edition");
                 status("Starting rip...");
                 ripper.setObserver((RipStatusHandler) this);
                 Thread t = new Thread(ripper);
@@ -1241,7 +1293,7 @@ public final class MainWindow implements Runnable, RipStatusHandler {
             File f = rsc.dir;
             String prettyFile = Utils.shortenPath(f);
             openButton.setText("Open " + prettyFile);
-            mainFrame.setTitle("RipMe v" + UpdateUtils.getThisJarVersion());
+            mainFrame.setTitle("RipMe v" + UpdateUtils.getThisJarVersion() + " Custom Edition");
             try {
                 Image folderIcon = ImageIO.read(getClass().getClassLoader().getResource("folder.png"));
                 openButton.setIcon(new ImageIcon(folderIcon));

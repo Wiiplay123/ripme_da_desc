@@ -147,7 +147,7 @@ public class MotherlessRipper extends AlbumRipper {
                 if (m.matches()) {
                     String file = m.group(1);
                     String prefix = "";
-                    if (Utils.getConfigBoolean("download.save_order", true)) {
+                    if (Utils.getConfigBoolean("download.save_order", false)) {
                         prefix = String.format("%03d_", index);
                     }
                     addURLToDownload(new URL(file), prefix);

@@ -256,7 +256,7 @@ public class FlickrRipper extends AbstractHTMLRipper {
                 }
                 else {
                     String prefix = "";
-                    if (Utils.getConfigBoolean("download.save_order", true)) {
+                    if (Utils.getConfigBoolean("download.save_order", false)) {
                         prefix = String.format("%03d_", index);
                     }
                     synchronized (flickrThreadPool) {

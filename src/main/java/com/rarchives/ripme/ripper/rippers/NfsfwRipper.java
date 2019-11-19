@@ -176,7 +176,7 @@ public class NfsfwRipper extends AlbumRipper {
                     file = "http://nfsfw.com" + file;
                 }
                 String prefix = "";
-                if (Utils.getConfigBoolean("download.save_order", true)) {
+                if (Utils.getConfigBoolean("download.save_order", false)) {
                     prefix = String.format("%03d_", index);
                 }
                 addURLToDownload(new URL(file), prefix, this.subdir);

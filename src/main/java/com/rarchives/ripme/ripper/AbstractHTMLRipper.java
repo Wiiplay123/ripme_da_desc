@@ -33,6 +33,8 @@ public abstract class AbstractHTMLRipper extends AlbumRipper {
         throw new IOException("getDescriptionsFromPage not implemented"); // Do I do this or make an abstract function?
     }
     public abstract void downloadURL(URL url, int index);
+    public void downloadURL(URL url, int index, String nameOverride) {
+    }
     public DownloadThreadPool getThreadPool() {
         return null;
     }
@@ -77,18 +79,26 @@ public abstract class AbstractHTMLRipper extends AlbumRipper {
             }
 
             if (imageURLs.size() == 0) {
-                //throw new IOException("No images found at " + doc.location());
+                logger.debug("It is " + Utils.getConfigBoolean("advskip", false));
+                if (Utils.getConfigBoolean("advskip", false)) {
+                    throw new IOException("No images found at " + doc.location());
+                }
             } else {
-
                 for (String imageURL : imageURLs) {
                     index += 1;
                     logger.debug("Found image url #" + index + ": " + imageURL);
-                    downloadURL(new URL(imageURL), index);
+                    if (imageURL.contains("wiiplus9001")) {
+                        downloadURL(new URL(imageURL.split("wiiplus9001")[0]),index,imageURL.split("wiiplus9001")[1]);
+                    } else {
+                        downloadURL(new URL(imageURL), index);
+                    }
                     if (isStopped()) {
                         break;
                     }
                 }
             }
+            //logger.debug("it be " + Utils.getConfigBoolean("descriptions.save", false));
+            //logger.debug ("rits " + hasDescriptionSupport());
             if (hasDescriptionSupport() && Utils.getConfigBoolean("descriptions.save", false)) {
                 logger.debug("Fetching description(s) from " + doc.location());
                 List<String> textURLs = getDescriptionsFromPage(doc);
@@ -107,8 +117,8 @@ public abstract class AbstractHTMLRipper extends AlbumRipper {
                                             + ""
                                             + File.separator
                                             + getPrefix(index)
-                                            + (tempDesc.length > 1 ? tempDesc[1] : fileNameFromURL(new URL(textURL)))
-                                            + ".txt").exists())) {
+                                            + (tempDesc.length > 1 ? tempDesc[1] : (fileNameFromURL(new URL(textURL)))
+                                            + ".htm")).exists())) {
                                 logger.debug("Got description from " + textURL);
                                 saveText(new URL(textURL), "", tempDesc[0], textindex, (tempDesc.length > 1 ? tempDesc[1] : fileNameFromURL(new URL(textURL))));
                                 sleep(descSleepTime());
@@ -126,6 +136,7 @@ public abstract class AbstractHTMLRipper extends AlbumRipper {
 
             try {
                 sendUpdate(STATUS.LOADING_RESOURCE, "next page");
+                logger.debug("Getting next page");
                 doc = getNextPage(doc);
             } catch (IOException e) {
                 logger.info("Can't get next page: " + e.getMessage());
@@ -176,15 +187,19 @@ public abstract class AbstractHTMLRipper extends AlbumRipper {
                     + getPrefix(index)
                     + fileName
                     + fileExtension);
-            // Write the file
-            FileOutputStream out = (new FileOutputStream(saveFileAs));
-            out.write(text.getBytes());
-            out.close();
+            if (Utils.getConfigBoolean("file.overwrite", false) || !saveFileAs.exists()) {
+                // Write the file
+                logger.debug("Downloading " + url + "'s description to " + saveFileAs);
+                FileOutputStream out = (new FileOutputStream(saveFileAs));
+                out.write(text.getBytes());
+                out.close();
+            } else {
+                logger.info("Text file " + saveFileAs.getName() + " already exists.");
+            }
         } catch (IOException e) {
             logger.error("[!] Error creating save file path for description '" + url + "':", e);
             return false;
         }
-        logger.debug("Downloading " + url + "'s description to " + saveFileAs);
         if (!saveFileAs.getParentFile().exists()) {
             logger.info("[+] Creating directory: " + Utils.removeCWD(saveFileAs.getParent()));
             saveFileAs.getParentFile().mkdirs();
@@ -193,7 +208,7 @@ public abstract class AbstractHTMLRipper extends AlbumRipper {
     }
     public String getPrefix(int index) {
         String prefix = "";
-        if (keepSortOrder() && Utils.getConfigBoolean("download.save_order", true)) {
+        if (keepSortOrder() && Utils.getConfigBoolean("download.save_order", false)) {
             prefix = String.format("%03d_", index);
         }
         return prefix;

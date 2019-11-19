@@ -204,7 +204,7 @@ public class RedditRipper extends AlbumRipper {
         } else if (urls.size() > 1) {
             for (int i = 0; i < urls.size(); i++) {
                 String prefix = id + "-";
-                if (Utils.getConfigBoolean("download.save_order", true)) {
+                if (Utils.getConfigBoolean("download.save_order", false)) {
                     prefix += String.format("%03d-", i + 1);
                 }
                 addURLToDownload(urls.get(i), prefix, "", theUrl, null);

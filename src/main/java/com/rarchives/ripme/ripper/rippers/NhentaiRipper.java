@@ -149,7 +149,7 @@ public class NhentaiRipper extends AbstractHTMLRipper {
                 if (m.matches()) {
                     // Manually discover filename from URL
                     String savePath = this.workingDir + File.separator;
-                    if (Utils.getConfigBoolean("download.save_order", true)) {
+                    if (Utils.getConfigBoolean("download.save_order", false)) {
                         savePath += String.format("%03d_", index);
                     }
                     savePath += m.group(1);
@@ -157,7 +157,7 @@ public class NhentaiRipper extends AbstractHTMLRipper {
                 } else {
                     // Provide prefix and let the AbstractRipper "guess" the filename
                     String prefix = "";
-                    if (Utils.getConfigBoolean("download.save_order", true)) {
+                    if (Utils.getConfigBoolean("download.save_order", false)) {
                         prefix = String.format("%03d_", index);
                     }
                     addURLToDownload(new URL(imgsrc), prefix);

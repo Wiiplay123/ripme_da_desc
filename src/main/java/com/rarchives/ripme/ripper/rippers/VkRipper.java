@@ -82,7 +82,7 @@ public class VkRipper extends AlbumRipper {
             String videoURL = com.rarchives.ripme.ripper.rippers.video.VkRipper.getVideoURLAtPage(
                     "http://vk.com/video" + oid + "_" + vidid);
             String prefix = "";
-            if (Utils.getConfigBoolean("download.save_order", true)) {
+            if (Utils.getConfigBoolean("download.save_order", false)) {
                 prefix = String.format("%03d_", i + 1);
             }
             addURLToDownload(new URL(videoURL), prefix);
