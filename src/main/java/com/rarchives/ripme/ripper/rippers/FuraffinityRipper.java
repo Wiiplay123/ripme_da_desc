@@ -251,7 +251,7 @@ public class FuraffinityRipper extends AbstractHTMLRipper {
             try {
                 Document doc = Http.url(url).cookies(cookies).get();
                 // Find image
-                Elements donwloadLink = doc.select("div.alt1 b a[href^=//d.facdn.net/]");
+                Elements donwloadLink = doc.select("a[href^=//d.facdn.net/]"); // div.alt1 b a[href^=//d.facdn.net/] before
                 if (donwloadLink.size() == 0) {
                     logger.warn("Could not download " + this.url);
                     return;
